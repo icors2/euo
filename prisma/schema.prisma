@@ -1,0 +1,266 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CharacterClass {
+  BASTION
+  NIGHTWEAVER
+  EMBER_SAGE
+  THORNBOUND
+}
+
+enum TriggerType {
+  PORTAL
+  TELEPORTER
+  TRAP
+  LOCKED_DOOR
+  LOCKED_DOOR_UNPICKABLE
+  SANCTUARY_ZONE
+  BIND_POINT
+  NO_TELEPORT_ZONE
+  PVP_ZONE
+  SCRIPTED_EVENT_REGION
+  SPAWN_REGION
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  username     String      @unique
+  passwordHash String
+  isAdmin      Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  sessions     Session[]
+  characters   Character[]
+  adminActions AdminActionLog[] @relation("AdminByUser")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  refreshToken String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Character {
+  id             String           @id @default(cuid())
+  userId          String
+  name            String           @unique
+  class           CharacterClass
+  level           Int              @default(1)
+  experience      Int              @default(0)
+  mapId           String
+  positionX       Int              @default(5)
+  positionY       Int              @default(5)
+  bindMapId       String?
+  bindX           Int?
+  bindY           Int?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stats           CharacterStats?
+  skills          CharacterSkills?
+  inventoryItems  InventoryItem[]
+  equippedItems   EquippedItem[]
+  questProgress   QuestProgress[]
+  partyMembership PartyMember[]
+}
+
+model CharacterStats {
+  characterId    String @id
+  strength       Int    @default(5)
+  dexterity      Int    @default(5)
+  will           Int    @default(5)
+  vitality       Int    @default(5)
+  health         Int    @default(100)
+  focus          Int    @default(60)
+  stamina        Int    @default(80)
+  armor          Int    @default(0)
+  accuracy       Int    @default(75)
+  evasion        Int    @default(5)
+  crit           Int    @default(2)
+  carryCapacity  Int    @default(40)
+  moveSpeed      Float  @default(3.5)
+  character      Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+}
+
+model CharacterSkills {
+  characterId String @id
+  blades      Int @default(1)
+  axes        Int @default(1)
+  bows        Int @default(1)
+  channeling  Int @default(1)
+  stealth     Int @default(1)
+  lockcraft   Int @default(1)
+  trapcraft   Int @default(1)
+  alchemy     Int @default(1)
+  harvesting  Int @default(1)
+  cooking     Int @default(1)
+  fishing     Int @default(1)
+  beastBond   Int @default(1)
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+}
+
+model InventoryItem {
+  id          String @id @default(cuid())
+  characterId String
+  itemDefId   String
+  quantity    Int    @default(1)
+  slotIndex   Int
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+}
+
+model EquippedItem {
+  id          String @id @default(cuid())
+  characterId String
+  itemDefId   String
+  slotKey     String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+}
+
+model ItemDefinition {
+  id          String   @id
+  name        String
+  category    String
+  rarity      String
+  maxStack    Int      @default(1)
+  data        Json
+  createdAt   DateTime @default(now())
+}
+
+model QuestDefinition {
+  id          String @id
+  title       String
+  summary     String
+  levelReq    Int @default(1)
+  data        Json
+}
+
+model QuestProgress {
+  id            String @id @default(cuid())
+  characterId   String
+  questDefId    String
+  state         String
+  objectiveData Json
+  updatedAt     DateTime @updatedAt
+  character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+}
+
+model NpcDefinition {
+  id         String @id
+  name       String
+  mapId      String
+  x          Int
+  y          Int
+  behavior   String
+  dialogue   Json
+}
+
+model MonsterDefinition {
+  id        String @id
+  name      String
+  level     Int
+  behavior  String
+  stats     Json
+  lootTable Json
+}
+
+model SpawnDefinition {
+  id           String @id @default(cuid())
+  mapId        String
+  monsterDefId String
+  x            Int
+  y            Int
+  radius       Int
+  maxAlive     Int
+}
+
+model MapDefinition {
+  id            String @id
+  displayName   String
+  tiledJsonPath String
+  pvpEnabled    Boolean @default(false)
+  sanctuary     Boolean @default(false)
+}
+
+model TriggerDefinition {
+  id      String @id @default(cuid())
+  mapId   String
+  name    String
+  type    TriggerType
+  x       Int
+  y       Int
+  width   Int
+  height  Int
+  data    Json
+}
+
+model Party {
+  id        String @id @default(cuid())
+  leaderId  String
+  createdAt DateTime @default(now())
+  members   PartyMember[]
+}
+
+model PartyMember {
+  id          String @id @default(cuid())
+  partyId      String
+  characterId  String
+  joinedAt     DateTime @default(now())
+  party        Party @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  @@unique([partyId, characterId])
+}
+
+model ChatLog {
+  id          String @id @default(cuid())
+  channel     String
+  senderName  String
+  recipient   String?
+  message     String
+  createdAt   DateTime @default(now())
+}
+
+model AdminActionLog {
+  id          String @id @default(cuid())
+  adminUserId String
+  actionType  String
+  details     Json
+  createdAt   DateTime @default(now())
+  adminUser   User @relation("AdminByUser", fields: [adminUserId], references: [id], onDelete: Cascade)
+}
+
+model HousingPlot {
+  id          String @id @default(cuid())
+  mapId       String
+  ownerCharId String?
+  data        Json
+}
+
+model Pet {
+  id          String @id @default(cuid())
+  ownerCharId String
+  species     String
+  level       Int @default(1)
+  data        Json
+}
+
+model AssetManifestEntry {
+  id            String @id @default(cuid())
+  key           String @unique
+  sourcePath    String
+  processedPath String
+  category      String
+  enabled       Boolean @default(true)
+  metadata      Json
+  createdAt     DateTime @default(now())
+}
