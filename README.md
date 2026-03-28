@@ -8,9 +8,22 @@
 - Prisma schema covering MMO entities
 - Asset inventory and manifest generation scripts
 - Placeholder fallback strategy and schema
-- First playable Tiled JSON town map (Hearthmere)
-- Multiplayer movement + chat MVP
 - Windows NSIS packaging config
+
+## Phase 2 delivered
+- first playable original map service (`Hearthmere`) served by API
+- account registration + REST login + character listing/creation flow
+- client character management screens wired to server API
+- map-aware multiplayer scene with trigger overlays
+- authoritative map bounds/collision checks and trigger reactions (portal/sanctuary)
+- realtime multiplayer movement + chat retained
+
+## Phase 3 delivered
+- inventory and equipment API endpoints and client HUD panels
+- quest log API + in-game quest panel
+- NPC dialogue API + in-game dialogue panel
+- item equip action from inventory to equipment slot
+- title screen now attempts manifest-backed title art and falls back safely
 
 ## Run
 1. `pnpm install`
