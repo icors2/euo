@@ -1,0 +1,14 @@
+:root { color-scheme: dark; font-family: 'Trebuchet MS', sans-serif; }
+body { margin: 0; background: #111827; color: #e5e7eb; }
+.panel { width: 420px; margin: 80px auto; display: flex; flex-direction: column; gap: 10px; padding: 20px; border: 1px solid #374151; background: #1f2937; }
+.panel.mini { width: auto; margin: 0; padding: 10px; background: #0f172a; border-color: #475569; }
+input, button { padding: 8px; background: #0f172a; color: #e2e8f0; border: 1px solid #475569; }
+.character-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.game-shell { display: grid; grid-template-columns: 960px 1fr; min-height: 100vh; }
+.game-canvas { border-right: 1px solid #374151; }
+.hud { padding: 12px; display: grid; grid-template-rows: auto auto auto auto auto 1fr auto; gap: 10px; align-content: start; }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.chat-log { border: 1px solid #475569; padding: 8px; overflow-y: auto; max-height: 260px; font-size: 12px; }
+.chat-input { display: flex; gap: 6px; }
+.chat-input input { flex: 1; }
+small { color: #93c5fd; }

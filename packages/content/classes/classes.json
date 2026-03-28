@@ -1,0 +1,34 @@
+[
+  {
+    "id": "BASTION",
+    "name": "Bastion",
+    "proficiencies": ["blades", "axes", "harvesting"],
+    "startingActives": ["shield-rush", "cleave-arc", "iron-vow"],
+    "passives": ["stoneblood", "pack-mule"],
+    "progressionHooks": ["guard-mastery", "banner-stance"]
+  },
+  {
+    "id": "NIGHTWEAVER",
+    "name": "Nightweaver",
+    "proficiencies": ["bows", "stealth", "lockcraft"],
+    "startingActives": ["shade-step", "venom-shot", "snare-wire"],
+    "passives": ["moon-sight", "quiet-hands"],
+    "progressionHooks": ["assassin-weave", "ghost-lure"]
+  },
+  {
+    "id": "EMBER_SAGE",
+    "name": "Ember Sage",
+    "proficiencies": ["channeling", "alchemy", "cooking"],
+    "startingActives": ["ember-bolt", "hearth-ward", "flare-ring"],
+    "passives": ["kindled-mind", "flicker-focus"],
+    "progressionHooks": ["cinder-rites", "phoenix-theory"]
+  },
+  {
+    "id": "THORNBOUND",
+    "name": "Thornbound",
+    "proficiencies": ["beast bond", "fishing", "trapcraft"],
+    "startingActives": ["briar-lash", "root-grasp", "wild-cry"],
+    "passives": ["trail-sense", "field-dresser"],
+    "progressionHooks": ["warden-growth", "pack-caller"]
+  }
+]
