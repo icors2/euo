@@ -128,3 +128,27 @@ export async function fetchAdminActions(token: string) {
   const res = await fetch(`${API_BASE}/admin/actions?token=${encodeURIComponent(token)}`);
   return res.json() as Promise<{ ok: boolean; actions?: Array<{ at: string; admin: string; action: string; payload: unknown }>; error?: string }>;
 }
+
+
+export async function adminMuteUser(token: string, username: string, seconds: number) {
+  const res = await fetch(`${API_BASE}/admin/mute`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, username, seconds })
+  });
+  return res.json();
+}
+
+export async function adminBanUser(token: string, username: string, banned: boolean) {
+  const res = await fetch(`${API_BASE}/admin/ban`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, username, banned })
+  });
+  return res.json();
+}
+
+export async function fetchSanctions(token: string) {
+  const res = await fetch(`${API_BASE}/admin/sanctions?token=${encodeURIComponent(token)}`);
+  return res.json() as Promise<{ ok: boolean; sanctions?: Array<{ username: string; mutedUntil: number | null; banned: boolean; isAdmin: boolean }>; error?: string }>;
+}

@@ -44,6 +44,12 @@
 - admin action audit log written to `runtime-logs/admin-actions.jsonl`
 - admin log API endpoint and in-client admin log viewer
 
+## Phase 7 delivered
+- admin moderation endpoints: mute, ban/unban, sanctions listing
+- muted users are prevented from chat until mute expires
+- banned users are prevented from receiving login tokens
+- admin panel includes quick moderation controls and sanctions preview
+
 ## Run
 1. `pnpm install`
 2. `pnpm asset:inventory`
@@ -61,12 +67,12 @@
 - Fight local monster spawns and gain loot
 - Die and respawn at bind point
 - Manage party membership and run optional duels
-- Admin-spawn monsters and review admin audit logs
+- Admin-spawn monsters, moderate users, and review admin audit logs
 - Chat globally with slash commands and rate limits
 - Trigger sanctuary and portal regions
 
 ## Next recommended files to generate
 - persistent PostgreSQL/Prisma adapters replacing in-memory stores
 - full PvP zone combat rules and arena leaderboard
-- admin moderation actions and sanctions subsystem
+- account security hardening (password hashing upgrade, refresh token revocation)
 - production hardening, automated tests, and installer polish

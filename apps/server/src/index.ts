@@ -3,7 +3,7 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { z } from 'zod';
 import type { ClientToServerEvents, ServerToClientEvents, PlayerSnapshot, ChatMessage } from '@emberveil/shared';
-import { registerUser, issueToken, validateToken, listCharacters, createCharacter, tokenIsAdmin } from './auth/store';
+import { registerUser, issueToken, validateToken, listCharacters, createCharacter, tokenIsAdmin, isMuted, setMute, setBan, getSanctions } from './auth/store';
 import { recordAdminAction, readAdminActions } from './auth/adminLog';
 import { worldState, upsertPlayer, movePlayer, removePlayer } from './world/state';
 import { handleSlashCommand } from './chat/commands';
@@ -39,7 +39,7 @@ app.post('/auth/login', async (req, reply) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Invalid payload.' });
   const token = issueToken(parsed.data.username, parsed.data.password);
-  if (!token) return reply.code(401).send({ ok: false, error: 'Invalid credentials.' });
+  if (!token) return reply.code(401).send({ ok: false, error: 'Invalid credentials or account unavailable.' });
   return { ok: true, token, characters: listCharacters(parsed.data.username) };
 });
 
@@ -137,6 +137,34 @@ app.post('/pvp/duel', async (req, reply) => {
   return { ok: true, winner, rolls: { attacker: rollA, defender: rollB } };
 });
 
+
+
+app.post('/admin/mute', async (req, reply) => {
+  const parsed = z.object({ token: z.string(), username: z.string(), seconds: z.number().int().positive() }).safeParse(req.body);
+  if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Invalid payload.' });
+  if (!tokenIsAdmin(parsed.data.token)) return reply.code(403).send({ ok: false, error: 'Admin only.' });
+  const result = setMute(parsed.data.username, parsed.data.seconds);
+  if (!result.ok) return reply.code(400).send(result);
+  recordAdminAction(validateToken(parsed.data.token) ?? 'unknown', 'mute-user', parsed.data);
+  return { ok: true };
+});
+
+app.post('/admin/ban', async (req, reply) => {
+  const parsed = z.object({ token: z.string(), username: z.string(), banned: z.boolean() }).safeParse(req.body);
+  if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Invalid payload.' });
+  if (!tokenIsAdmin(parsed.data.token)) return reply.code(403).send({ ok: false, error: 'Admin only.' });
+  const result = setBan(parsed.data.username, parsed.data.banned);
+  if (!result.ok) return reply.code(400).send(result);
+  recordAdminAction(validateToken(parsed.data.token) ?? 'unknown', 'ban-user', parsed.data);
+  return { ok: true };
+});
+
+app.get('/admin/sanctions', async (req, reply) => {
+  const token = String((req.query as { token?: string }).token ?? '');
+  if (!tokenIsAdmin(token)) return reply.code(403).send({ ok: false, error: 'Admin only.' });
+  return { ok: true, sanctions: getSanctions() };
+});
+
 app.post('/admin/spawn-monster', async (req, reply) => {
   const parsed = z.object({ token: z.string(), mapId: z.string(), name: z.string(), x: z.number().int(), y: z.number().int() }).safeParse(req.body);
   if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Invalid payload.' });
@@ -228,6 +256,10 @@ io.on('connection', (socket) => {
     if (!username) return;
     if (!chatAllowed(username)) {
       socket.emit('system:error', 'Chat rate limit: max 8 messages / 10s.');
+      return;
+    }
+    if (isMuted(username)) {
+      socket.emit('system:error', 'You are temporarily muted.');
       return;
     }
 
