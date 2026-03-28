@@ -122,6 +122,17 @@ export function App() {
     setStatus(`Character ${characterName} created.`);
   };
 
+
+
+  const logout = async () => {
+    if (token) await api.logout(token);
+    socket.disconnect();
+    setToken('');
+    setPlayerId('');
+    setStage('launcher');
+    setStatus('Logged out.');
+  };
+
   const selectCharacter = async (name: string) => {
     const map = await api.fetchMap('hearthmere');
     if (!map) return setStatus('Failed to load map');
@@ -265,6 +276,7 @@ export function App() {
           <button onClick={() => setShowAdmin((v) => !v)}>Admin</button>
           <button onClick={talkToMira}>Talk: Mira</button>
           <button onClick={refreshCombat}>Refresh</button>
+          <button onClick={logout}>Logout</button>
         </div>
 
         {showInventory && <div className="panel mini"><h3>Inventory</h3>{inventory.map((i) => <div key={i.slot}><button onClick={() => equipWeaponFromSlot(i.slot)}>Equip</button> {i.name} x{i.quantity}</div>)}</div>}

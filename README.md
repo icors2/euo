@@ -50,6 +50,12 @@
 - banned users are prevented from receiving login tokens
 - admin panel includes quick moderation controls and sanctions preview
 
+## Phase 8 delivered
+- upgraded password storage from simple hash to PBKDF2 salted hashes
+- token sessions now include expiry and revocation flags
+- logout endpoint revokes active session token
+- client HUD includes explicit logout action for session invalidation
+
 ## Run
 1. `pnpm install`
 2. `pnpm asset:inventory`
@@ -69,10 +75,11 @@
 - Manage party membership and run optional duels
 - Admin-spawn monsters, moderate users, and review admin audit logs
 - Chat globally with slash commands and rate limits
+- Logout to revoke session token
 - Trigger sanctuary and portal regions
 
 ## Next recommended files to generate
 - persistent PostgreSQL/Prisma adapters replacing in-memory stores
 - full PvP zone combat rules and arena leaderboard
-- account security hardening (password hashing upgrade, refresh token revocation)
+- refresh token rotation and device/session management UI
 - production hardening, automated tests, and installer polish

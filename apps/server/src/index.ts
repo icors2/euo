@@ -3,7 +3,7 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { z } from 'zod';
 import type { ClientToServerEvents, ServerToClientEvents, PlayerSnapshot, ChatMessage } from '@emberveil/shared';
-import { registerUser, issueToken, validateToken, listCharacters, createCharacter, tokenIsAdmin, isMuted, setMute, setBan, getSanctions } from './auth/store';
+import { registerUser, issueToken, validateToken, listCharacters, createCharacter, tokenIsAdmin, isMuted, setMute, setBan, getSanctions, revokeToken } from './auth/store';
 import { recordAdminAction, readAdminActions } from './auth/adminLog';
 import { worldState, upsertPlayer, movePlayer, removePlayer } from './world/state';
 import { handleSlashCommand } from './chat/commands';
@@ -41,6 +41,15 @@ app.post('/auth/login', async (req, reply) => {
   const token = issueToken(parsed.data.username, parsed.data.password);
   if (!token) return reply.code(401).send({ ok: false, error: 'Invalid credentials or account unavailable.' });
   return { ok: true, token, characters: listCharacters(parsed.data.username) };
+});
+
+
+
+app.post('/auth/logout', async (req, reply) => {
+  const parsed = z.object({ token: z.string() }).safeParse(req.body);
+  if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Invalid payload.' });
+  revokeToken(parsed.data.token);
+  return { ok: true };
 });
 
 app.post('/character/create', async (req, reply) => {

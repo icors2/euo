@@ -10,11 +10,26 @@ interface UserRecord {
   banned: boolean;
 }
 
-const users = new Map<string, UserRecord>();
-const tokenToUser = new Map<string, string>();
+interface SessionToken {
+  username: string;
+  expiresAt: number;
+  revoked: boolean;
+}
 
-function hash(password: string): string {
-  return crypto.createHash('sha256').update(password).digest('hex');
+const users = new Map<string, UserRecord>();
+const tokenToSession = new Map<string, SessionToken>();
+
+function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const digest = crypto.pbkdf2Sync(password, salt, 120_000, 32, 'sha256').toString('hex');
+  return `pbkdf2$${salt}$${digest}`;
+}
+
+function verifyPassword(password: string, stored: string): boolean {
+  const [algo, salt, expected] = stored.split('$');
+  if (algo !== 'pbkdf2' || !salt || !expected) return false;
+  const actual = crypto.pbkdf2Sync(password, salt, 120_000, 32, 'sha256').toString('hex');
+  return crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(actual, 'hex'));
 }
 
 export function registerUser(username: string, email: string, password: string, isAdmin = false): { ok: boolean; error?: string } {
@@ -22,7 +37,7 @@ export function registerUser(username: string, email: string, password: string, 
   users.set(username, {
     username,
     email,
-    passwordHash: hash(password),
+    passwordHash: hashPassword(password),
     characters: ['Cinderling'],
     isAdmin,
     banned: false
@@ -32,15 +47,32 @@ export function registerUser(username: string, email: string, password: string, 
 
 export function issueToken(username: string, password: string): string | null {
   const user = users.get(username);
-  if (!user || user.passwordHash !== hash(password)) return null;
+  if (!user || !verifyPassword(password, user.passwordHash)) return null;
   if (user.banned) return null;
+
   const token = `${username}-${crypto.randomUUID()}`;
-  tokenToUser.set(token, username);
+  tokenToSession.set(token, {
+    username,
+    expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+    revoked: false
+  });
   return token;
 }
 
+export function revokeToken(token: string): { ok: boolean } {
+  const session = tokenToSession.get(token);
+  if (!session) return { ok: true };
+  session.revoked = true;
+  tokenToSession.set(token, session);
+  return { ok: true };
+}
+
 export function validateToken(token: string): string | null {
-  return tokenToUser.get(token) ?? null;
+  const session = tokenToSession.get(token);
+  if (!session) return null;
+  if (session.revoked) return null;
+  if (Date.now() > session.expiresAt) return null;
+  return session.username;
 }
 
 export function listCharacters(username: string): string[] {

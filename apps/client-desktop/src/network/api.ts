@@ -20,6 +20,15 @@ export async function login(username: string, password: string): Promise<{ ok: b
   return res.json();
 }
 
+export async function logout(token: string) {
+  const res = await fetch(`${API_BASE}/auth/logout`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token })
+  });
+  return res.json();
+}
+
 export async function createCharacter(token: string, characterName: string): Promise<{ ok: boolean; characters?: string[]; error?: string }> {
   const res = await fetch(`${API_BASE}/character/create`, {
     method: 'POST',
