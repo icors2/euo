@@ -1,0 +1,5 @@
+[
+  {"id":"rustbound-blade","name":"Rustbound Blade","type":"weapon"},
+  {"id":"charcloth-robe","name":"Charcloth Robe","type":"armor"},
+  {"id":"fen-salve","name":"Fen Salve","type":"consumable"}
+]

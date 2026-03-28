@@ -1,0 +1,9 @@
+[
+  {"id": "hearthmere", "name": "Hearthmere", "path": "packages/content/maps/hearthmere-town.json", "pvp": false},
+  {"id": "bramble-march", "name": "Bramble March", "path": "packages/content/maps/bramble-march.json", "pvp": false},
+  {"id": "cinder-hollow", "name": "Cinder Hollow", "path": "packages/content/maps/cinder-hollow.json", "pvp": false},
+  {"id": "ashvault", "name": "Ashvault", "path": "packages/content/maps/ashvault.json", "pvp": false},
+  {"id": "redglass-pit", "name": "Redglass Pit", "path": "packages/content/maps/redglass-pit.json", "pvp": true},
+  {"id": "lantern-ward", "name": "Lantern Ward", "path": "packages/content/maps/lantern-ward.json", "pvp": false},
+  {"id": "graybox-commons", "name": "Graybox Commons", "path": "packages/content/maps/graybox-commons.json", "pvp": false}
+]
