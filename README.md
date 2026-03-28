@@ -56,6 +56,12 @@
 - logout endpoint revokes active session token
 - client HUD includes explicit logout action for session invalidation
 
+
+## Phase 9 delivered
+- added optional Prisma-backed admin action persistence adapter
+- admin action logging now writes to file and attempts DB persistence when `DATABASE_URL` + Prisma client are available
+- admin action reads now prefer DB and gracefully fall back to file logs
+
 ## Run
 1. `pnpm install`
 2. `pnpm asset:inventory`
@@ -79,7 +85,7 @@
 - Trigger sanctuary and portal regions
 
 ## Next recommended files to generate
-- persistent PostgreSQL/Prisma adapters replacing in-memory stores
+- migrate auth/character/inventory stores from in-memory maps into Prisma repositories
 - full PvP zone combat rules and arena leaderboard
 - refresh token rotation and device/session management UI
 - production hardening, automated tests, and installer polish

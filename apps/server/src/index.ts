@@ -154,7 +154,7 @@ app.post('/admin/mute', async (req, reply) => {
   if (!tokenIsAdmin(parsed.data.token)) return reply.code(403).send({ ok: false, error: 'Admin only.' });
   const result = setMute(parsed.data.username, parsed.data.seconds);
   if (!result.ok) return reply.code(400).send(result);
-  recordAdminAction(validateToken(parsed.data.token) ?? 'unknown', 'mute-user', parsed.data);
+  await recordAdminAction(validateToken(parsed.data.token) ?? 'unknown', 'mute-user', parsed.data);
   return { ok: true };
 });
 
@@ -164,7 +164,7 @@ app.post('/admin/ban', async (req, reply) => {
   if (!tokenIsAdmin(parsed.data.token)) return reply.code(403).send({ ok: false, error: 'Admin only.' });
   const result = setBan(parsed.data.username, parsed.data.banned);
   if (!result.ok) return reply.code(400).send(result);
-  recordAdminAction(validateToken(parsed.data.token) ?? 'unknown', 'ban-user', parsed.data);
+  await recordAdminAction(validateToken(parsed.data.token) ?? 'unknown', 'ban-user', parsed.data);
   return { ok: true };
 });
 
@@ -181,14 +181,14 @@ app.post('/admin/spawn-monster', async (req, reply) => {
 
   const monster = spawnMonsterAdmin(parsed.data.mapId, parsed.data.name, parsed.data.x, parsed.data.y);
   const admin = validateToken(parsed.data.token) ?? 'unknown';
-  recordAdminAction(admin, 'spawn-monster', parsed.data);
+  await recordAdminAction(admin, 'spawn-monster', parsed.data);
   return { ok: true, monster };
 });
 
 app.get('/admin/actions', async (req, reply) => {
   const token = String((req.query as { token?: string }).token ?? '');
   if (!tokenIsAdmin(token)) return reply.code(403).send({ ok: false, error: 'Admin only.' });
-  return { ok: true, actions: readAdminActions() };
+  return { ok: true, actions: await readAdminActions() };
 });
 app.get('/content/map/:mapId', async (req, reply) => {
   const mapId = (req.params as { mapId: string }).mapId;
