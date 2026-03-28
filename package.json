@@ -12,7 +12,8 @@
     "asset:inventory": "tsx scripts/inventory-assets.ts",
     "asset:manifest": "tsx scripts/generate-asset-manifests.ts",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev"
+    "db:migrate": "prisma migrate dev",
+    "smoke:server": "node scripts/smoke-check.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

@@ -12,6 +12,7 @@ import { canOccupy, getMapSnapshot, resolveTrigger } from './content/maps';
 import { getInventory, getEquipment, equipItem, getQuestLog, getNpcDialogue, addLootToInventory } from './game/progression';
 import { getCombatSnapshot, attackMonster, respawnAtBind, setBind, spawnMonsterAdmin } from './game/combat';
 import { inviteToParty, leaveParty, getParty } from './game/party';
+import { collectDiagnostics } from './persistence/diagnostics';
 
 const app = Fastify({ logger: true });
 const httpServer = createServer(app.server);
@@ -21,6 +22,17 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
 });
 
 app.get('/health', async () => ({ ok: true, name: 'emberveil-server' }));
+
+app.get('/ops/diagnostics', async () => {
+  return { ok: true, diagnostics: await collectDiagnostics() };
+});
+
+app.get('/ops/selftest', async () => {
+  const d = await collectDiagnostics();
+  const pass = d.manifests.schema && d.database !== 'error';
+  return { ok: pass, diagnostics: d };
+});
+
 
 const registerSchema = z.object({ username: z.string().min(3), email: z.string().email(), password: z.string().min(4) });
 const loginSchema = z.object({ username: z.string().min(3), password: z.string().min(4) });

@@ -161,3 +161,9 @@ export async function fetchSanctions(token: string) {
   const res = await fetch(`${API_BASE}/admin/sanctions?token=${encodeURIComponent(token)}`);
   return res.json() as Promise<{ ok: boolean; sanctions?: Array<{ username: string; mutedUntil: number | null; banned: boolean; isAdmin: boolean }>; error?: string }>;
 }
+
+
+export async function fetchDiagnostics() {
+  const res = await fetch(`${API_BASE}/ops/diagnostics`);
+  return res.json() as Promise<{ ok: boolean; diagnostics: { serverTime: string; database: string; manifests: { schema: boolean; uiManifest: boolean } } }>;
+}

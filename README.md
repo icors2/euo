@@ -62,6 +62,13 @@
 - admin action logging now writes to file and attempts DB persistence when `DATABASE_URL` + Prisma client are available
 - admin action reads now prefer DB and gracefully fall back to file logs
 
+
+## Phase 10 delivered
+- ops diagnostics endpoints (`/ops/diagnostics`, `/ops/selftest`)
+- DB + manifest readiness reporting for runtime visibility
+- admin panel diagnostics viewer
+- server smoke-check script (`pnpm smoke:server`)
+
 ## Run
 1. `pnpm install`
 2. `pnpm asset:inventory`
@@ -88,4 +95,4 @@
 - migrate auth/character/inventory stores from in-memory maps into Prisma repositories
 - full PvP zone combat rules and arena leaderboard
 - refresh token rotation and device/session management UI
-- production hardening, automated tests, and installer polish
+- expand smoke checks into CI integration tests and packaging verification

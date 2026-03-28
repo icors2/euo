@@ -41,6 +41,7 @@ export function App() {
   const [adminActions, setAdminActions] = useState<Array<{ at: string; admin: string; action: string }>>([]);
   const [sanctions, setSanctions] = useState<Array<{ username: string; mutedUntil: number | null; banned: boolean }>>([]);
   const [modTarget, setModTarget] = useState('devhero');
+  const [diagnostics, setDiagnostics] = useState<{ serverTime: string; database: string; manifests: { schema: boolean; uiManifest: boolean } } | null>(null);
   const [titleArt, setTitleArt] = useState<string | null>(null);
   const gameRef = useRef<HTMLDivElement>(null);
 
@@ -199,6 +200,14 @@ export function App() {
 
 
 
+
+
+  const loadDiagnostics = async () => {
+    const res = await api.fetchDiagnostics();
+    if (!res.ok) return setStatus('Diagnostics unavailable');
+    setDiagnostics(res.diagnostics);
+  };
+
   const loadSanctions = async () => {
     const res = await api.fetchSanctions(token);
     if (!res.ok) return setStatus(res.error ?? 'Cannot load sanctions');
@@ -286,7 +295,7 @@ export function App() {
         {dialogue && <div className="panel mini"><h3>{dialogue.name}</h3>{dialogue.lines.map((l, i) => <div key={i}>{l}</div>)}{dialogue.questOfferId && <small>Quest available: {dialogue.questOfferId}</small>}</div>}
 
         {showParty && <div className="panel mini"><h3>Party</h3><div>ID: {party?.id ?? 'none'}</div><div>Leader: {party?.leaderId ?? '-'}</div><div>Members: {party?.members?.join(', ') ?? '-'}</div><input placeholder="invite characterId" value={invitee} onChange={(e) => setInvitee(e.target.value)} /><button onClick={inviteParty}>Invite</button><button onClick={leavePartyNow}>Leave Party</button><input placeholder="duel target characterId" value={pvpTarget} onChange={(e) => setPvpTarget(e.target.value)} /><button onClick={duel}>Duel in Redglass Pit</button></div>}
-        {showAdmin && <div className="panel mini"><h3>Admin Tools</h3><div>Login as <code>gamemaster/adminpass</code> to use.</div><input value={adminMonsterName} onChange={(e) => setAdminMonsterName(e.target.value)} /><button onClick={spawnMonsterAdmin}>Spawn Monster @ (9,9)</button><input value={modTarget} onChange={(e) => setModTarget(e.target.value)} /><button onClick={muteTarget}>Mute 60s</button><button onClick={() => banTarget(true)}>Ban</button><button onClick={() => banTarget(false)}>Unban</button><button onClick={loadAdminActions}>Refresh Admin Log</button><button onClick={loadSanctions}>Refresh Sanctions</button>{adminActions.slice(-5).map((a, i) => <div key={i}>{a.at} {a.admin}: {a.action}</div>)}{sanctions.slice(-5).map((s, i) => <div key={`s${i}`}>{s.username} | muted:{s.mutedUntil ? 'yes' : 'no'} | banned:{s.banned ? 'yes' : 'no'}</div>)}</div>}
+        {showAdmin && <div className="panel mini"><h3>Admin Tools</h3><div>Login as <code>gamemaster/adminpass</code> to use.</div><input value={adminMonsterName} onChange={(e) => setAdminMonsterName(e.target.value)} /><button onClick={spawnMonsterAdmin}>Spawn Monster @ (9,9)</button><input value={modTarget} onChange={(e) => setModTarget(e.target.value)} /><button onClick={muteTarget}>Mute 60s</button><button onClick={() => banTarget(true)}>Ban</button><button onClick={() => banTarget(false)}>Unban</button><button onClick={loadAdminActions}>Refresh Admin Log</button><button onClick={loadSanctions}>Refresh Sanctions</button><button onClick={loadDiagnostics}>Diagnostics</button>{diagnostics && <div>DB:{diagnostics.database} schema:{diagnostics.manifests.schema ? 'yes':'no'} ui:{diagnostics.manifests.uiManifest ? 'yes':'no'}</div>}{adminActions.slice(-5).map((a, i) => <div key={i}>{a.at} {a.admin}: {a.action}</div>)}{sanctions.slice(-5).map((s, i) => <div key={`s${i}`}>{s.username} | muted:{s.mutedUntil ? 'yes' : 'no'} | banned:{s.banned ? 'yes' : 'no'}</div>)}</div>}
 
         <small>{status}</small>
         <div className="chat-log">{chat.map((m, i) => <div key={i}>[{m.channel}] {m.sender}: {m.text}</div>)}</div>
