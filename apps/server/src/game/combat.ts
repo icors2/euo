@@ -1,3 +1,5 @@
+import crypto from 'node:crypto';
+
 interface MonsterInstance {
   id: string;
   name: string;
@@ -105,4 +107,22 @@ export function respawnAtBind(characterId: string) {
   self.dead = false;
   self.hp = self.maxHp;
   return { ok: true, bind: self.bind, self };
+}
+
+
+export function spawnMonsterAdmin(mapId: string, name: string, x: number, y: number) {
+  const monster: MonsterInstance = {
+    id: `m-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${crypto.randomUUID().slice(0, 8)}`,
+    name,
+    mapId,
+    x,
+    y,
+    hp: 24,
+    maxHp: 24,
+    attack: 3,
+    alive: true,
+    respawnAt: 0
+  };
+  monsters.push(monster);
+  return monster;
 }

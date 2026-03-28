@@ -32,6 +32,12 @@ export function App() {
   const [showEquipment, setShowEquipment] = useState(false);
   const [showQuests, setShowQuests] = useState(false);
   const [showCombat, setShowCombat] = useState(false);
+  const [showParty, setShowParty] = useState(false);
+  const [party, setParty] = useState<{ id: string; leaderId: string; members: string[] } | null>(null);
+  const [invitee, setInvitee] = useState('');
+  const [pvpTarget, setPvpTarget] = useState('');
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [adminMonsterName, setAdminMonsterName] = useState('Arena Wisp');
   const [titleArt, setTitleArt] = useState<string | null>(null);
   const gameRef = useRef<HTMLDivElement>(null);
 
@@ -59,11 +65,12 @@ export function App() {
   }, [stage, token, playerId, runtimeMap]);
 
   const loadCharacterPanels = async (cid: string) => {
-    const [inv, eq, q, world] = await Promise.all([
+    const [inv, eq, q, world, partyRes] = await Promise.all([
       api.fetchInventory(cid),
       api.fetchEquipment(cid),
       api.fetchQuests(cid),
-      api.fetchWorldState(cid, 'hearthmere')
+      api.fetchWorldState(cid, 'hearthmere'),
+      api.fetchParty(cid)
     ]);
     setInventory(inv.inventory.map((i) => ({ slot: i.slot, name: i.name, quantity: i.quantity })));
     setEquipment(eq.equipment);
@@ -146,6 +153,36 @@ export function App() {
     setStatus('Respawned at bind point.');
   };
 
+
+
+  const inviteParty = async () => {
+    const res = await api.partyInvite(playerId, invitee);
+    if (!res.ok) return setStatus(res.error ?? 'Party invite failed');
+    const partyRes = await api.fetchParty(playerId);
+    setParty(partyRes.party);
+    setStatus('Party updated.');
+  };
+
+  const leavePartyNow = async () => {
+    await api.partyLeave(playerId);
+    const partyRes = await api.fetchParty(playerId);
+    setParty(partyRes.party);
+    setStatus('Left party.');
+  };
+
+  const duel = async () => {
+    const res = await api.pvpDuel(playerId, pvpTarget);
+    if (!res.ok) return setStatus(res.error ?? 'Duel failed');
+    setStatus(`Duel winner: ${res.winner} (A:${res.rolls.attacker} B:${res.rolls.defender})`);
+  };
+
+  const spawnMonsterAdmin = async () => {
+    const res = await api.adminSpawnMonster(token, 'hearthmere', adminMonsterName, 9, 9);
+    if (!res.ok) return setStatus(res.error ?? 'Admin spawn failed');
+    setStatus(`Spawned ${res.monster.name}`);
+    await refreshCombat();
+  };
+
   if (stage === 'launcher') {
     return <div className="panel" style={titleArt ? { backgroundImage: `url(${titleArt})`, backgroundSize: 'cover' } : {}}><h1>Emberveil Online</h1><button onClick={() => setStage('login')}>Login</button><button onClick={() => setStage('register')}>Register</button><small>{titleArt ? 'Loaded title art from manifest' : 'Using fallback title panel'}</small></div>;
   }
@@ -183,6 +220,8 @@ export function App() {
           <button onClick={() => setShowEquipment((v) => !v)}>Equipment</button>
           <button onClick={() => setShowQuests((v) => !v)}>Quests</button>
           <button onClick={() => setShowCombat((v) => !v)}>Combat</button>
+          <button onClick={() => setShowParty((v) => !v)}>Party</button>
+          <button onClick={() => setShowAdmin((v) => !v)}>Admin</button>
           <button onClick={talkToMira}>Talk: Mira</button>
           <button onClick={refreshCombat}>Refresh</button>
         </div>
@@ -192,6 +231,9 @@ export function App() {
         {showQuests && <div className="panel mini"><h3>Quest Log</h3>{quests.map((q) => <div key={q.id}><strong>{q.title}</strong> [{q.state}]<br />{q.objective}</div>)}</div>}
         {showCombat && <div className="panel mini"><h3>Combat Targets</h3>{monsters.map((m) => <div key={m.id}><button disabled={!m.alive || dead} onClick={() => attack(m.id)}>Attack</button> {m.name} ({m.hp}/{m.maxHp}) {m.alive ? '' : '[respawning]'}</div>)}{dead && <button onClick={respawn}>Respawn at Bind</button>}</div>}
         {dialogue && <div className="panel mini"><h3>{dialogue.name}</h3>{dialogue.lines.map((l, i) => <div key={i}>{l}</div>)}{dialogue.questOfferId && <small>Quest available: {dialogue.questOfferId}</small>}</div>}
+
+        {showParty && <div className="panel mini"><h3>Party</h3><div>ID: {party?.id ?? 'none'}</div><div>Leader: {party?.leaderId ?? '-'}</div><div>Members: {party?.members?.join(', ') ?? '-'}</div><input placeholder="invite characterId" value={invitee} onChange={(e) => setInvitee(e.target.value)} /><button onClick={inviteParty}>Invite</button><button onClick={leavePartyNow}>Leave Party</button><input placeholder="duel target characterId" value={pvpTarget} onChange={(e) => setPvpTarget(e.target.value)} /><button onClick={duel}>Duel in Redglass Pit</button></div>}
+        {showAdmin && <div className="panel mini"><h3>Admin Tools</h3><div>Login as <code>gamemaster/adminpass</code> to use.</div><input value={adminMonsterName} onChange={(e) => setAdminMonsterName(e.target.value)} /><button onClick={spawnMonsterAdmin}>Spawn Monster @ (9,9)</button></div>}
 
         <small>{status}</small>
         <div className="chat-log">{chat.map((m, i) => <div key={i}>[{m.channel}] {m.sender}: {m.text}</div>)}</div>

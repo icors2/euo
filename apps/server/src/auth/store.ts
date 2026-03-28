@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 
 interface UserRecord {
+  isAdmin: boolean;
   username: string;
   email: string;
   passwordHash: string;
@@ -14,13 +15,14 @@ function hash(password: string): string {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
-export function registerUser(username: string, email: string, password: string): { ok: boolean; error?: string } {
+export function registerUser(username: string, email: string, password: string, isAdmin = false): { ok: boolean; error?: string } {
   if (users.has(username)) return { ok: false, error: 'Username already exists.' };
   users.set(username, {
     username,
     email,
     passwordHash: hash(password),
-    characters: ['Cinderling']
+    characters: ['Cinderling'],
+    isAdmin
   });
   return { ok: true };
 }
@@ -51,3 +53,11 @@ export function createCharacter(username: string, characterName: string): { ok: 
 }
 
 registerUser('devhero', 'devhero@emberveil.local', 'devpass');
+registerUser('gamemaster', 'gm@emberveil.local', 'adminpass', true);
+
+
+export function tokenIsAdmin(token: string): boolean {
+  const username = validateToken(token);
+  if (!username) return false;
+  return users.get(username)?.isAdmin ?? false;
+}

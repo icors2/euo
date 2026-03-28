@@ -32,6 +32,12 @@
 - bind trigger now updates respawn anchor in real time
 - combat panel in client to attack monsters and respawn when defeated
 
+## Phase 5 delivered
+- party invites, membership tracking, and leave flow
+- optional PvP duel endpoint gated to `redglass-pit`
+- admin-only monster spawn endpoint requiring admin token
+- in-client Party panel and Admin tools panel
+
 ## Run
 1. `pnpm install`
 2. `pnpm asset:inventory`
@@ -41,17 +47,20 @@
 
 ## Playable now
 - Register an account (or login with seeded `devhero / devpass`)
+- Admin login available via `gamemaster / adminpass`
 - Create/select characters
 - Enter Hearthmere and move around in shared realtime
 - Open inventory/equipment/quest windows
 - Equip starting items and read NPC dialogue
 - Fight local monster spawns and gain loot
 - Die and respawn at bind point
+- Manage party membership and run optional duels
+- Admin-spawn monsters for live testing
 - Chat globally and run basic slash commands (`/help`, `/roll`)
 - Trigger sanctuary and portal regions
 
-## Next recommended files to generate (Phase 5)
-- party invites, member sync and party chat channel
-- optional PvP ruleset and arena flow for Redglass Pit
-- admin command extensions and audit tooling
-- packaging/polish and pre-release balance pass
+## Next recommended files to generate
+- persistent PostgreSQL/Prisma adapters replacing in-memory stores
+- full PvP zone combat rules and arena leaderboard
+- admin audit log persistence and moderation UI
+- production hardening, tests, and installer polish

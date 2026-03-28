@@ -3,12 +3,13 @@ import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import { z } from 'zod';
 import type { ClientToServerEvents, ServerToClientEvents, PlayerSnapshot, ChatMessage } from '@emberveil/shared';
-import { registerUser, issueToken, validateToken, listCharacters, createCharacter } from './auth/store';
+import { registerUser, issueToken, validateToken, listCharacters, createCharacter, tokenIsAdmin } from './auth/store';
 import { worldState, upsertPlayer, movePlayer, removePlayer } from './world/state';
 import { handleSlashCommand } from './chat/commands';
 import { canOccupy, getMapSnapshot, resolveTrigger } from './content/maps';
 import { getInventory, getEquipment, equipItem, getQuestLog, getNpcDialogue, addLootToInventory } from './game/progression';
-import { getCombatSnapshot, attackMonster, respawnAtBind, setBind } from './game/combat';
+import { getCombatSnapshot, attackMonster, respawnAtBind, setBind, spawnMonsterAdmin } from './game/combat';
+import { inviteToParty, leaveParty, getParty } from './game/party';
 
 const app = Fastify({ logger: true });
 const httpServer = createServer(app.server);
@@ -103,6 +104,44 @@ app.post('/world/:characterId/attack', async (req, reply) => {
 app.post('/world/:characterId/respawn', async (req) => {
   const characterId = (req.params as { characterId: string }).characterId;
   return respawnAtBind(characterId);
+});
+
+
+app.get('/party/:characterId', async (req) => {
+  const characterId = (req.params as { characterId: string }).characterId;
+  return { ok: true, party: getParty(characterId) };
+});
+
+app.post('/party/:characterId/invite', async (req, reply) => {
+  const characterId = (req.params as { characterId: string }).characterId;
+  const parsed = z.object({ inviteeId: z.string().min(3) }).safeParse(req.body);
+  if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Invalid payload.' });
+  return inviteToParty(characterId, parsed.data.inviteeId);
+});
+
+app.post('/party/:characterId/leave', async (req) => {
+  const characterId = (req.params as { characterId: string }).characterId;
+  return leaveParty(characterId);
+});
+
+app.post('/pvp/duel', async (req, reply) => {
+  const parsed = z.object({ attackerId: z.string(), defenderId: z.string(), zone: z.string() }).safeParse(req.body);
+  if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Invalid payload.' });
+  if (parsed.data.zone !== 'redglass-pit') return reply.code(400).send({ ok: false, error: 'PvP only enabled in Redglass Pit.' });
+
+  const rollA = Math.floor(Math.random() * 20) + 1;
+  const rollB = Math.floor(Math.random() * 20) + 1;
+  const winner = rollA >= rollB ? parsed.data.attackerId : parsed.data.defenderId;
+  return { ok: true, winner, rolls: { attacker: rollA, defender: rollB } };
+});
+
+app.post('/admin/spawn-monster', async (req, reply) => {
+  const parsed = z.object({ token: z.string(), mapId: z.string(), name: z.string(), x: z.number().int(), y: z.number().int() }).safeParse(req.body);
+  if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Invalid payload.' });
+  if (!tokenIsAdmin(parsed.data.token)) return reply.code(403).send({ ok: false, error: 'Admin only.' });
+
+  const monster = spawnMonsterAdmin(parsed.data.mapId, parsed.data.name, parsed.data.x, parsed.data.y);
+  return { ok: true, monster };
 });
 app.get('/content/map/:mapId', async (req, reply) => {
   const mapId = (req.params as { mapId: string }).mapId;

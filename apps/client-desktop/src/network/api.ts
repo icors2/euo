@@ -84,3 +84,41 @@ export async function respawn(characterId: string) {
   const res = await fetch(`${API_BASE}/world/${characterId}/respawn`, { method: 'POST' });
   return res.json();
 }
+
+
+export async function fetchParty(characterId: string) {
+  const res = await fetch(`${API_BASE}/party/${characterId}`);
+  return res.json() as Promise<{ ok: boolean; party: { id: string; leaderId: string; members: string[] } | null }>;
+}
+
+export async function partyInvite(characterId: string, inviteeId: string) {
+  const res = await fetch(`${API_BASE}/party/${characterId}/invite`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ inviteeId })
+  });
+  return res.json();
+}
+
+export async function partyLeave(characterId: string) {
+  const res = await fetch(`${API_BASE}/party/${characterId}/leave`, { method: 'POST' });
+  return res.json();
+}
+
+export async function pvpDuel(attackerId: string, defenderId: string) {
+  const res = await fetch(`${API_BASE}/pvp/duel`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ attackerId, defenderId, zone: 'redglass-pit' })
+  });
+  return res.json();
+}
+
+export async function adminSpawnMonster(token: string, mapId: string, name: string, x: number, y: number) {
+  const res = await fetch(`${API_BASE}/admin/spawn-monster`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, mapId, name, x, y })
+  });
+  return res.json();
+}
