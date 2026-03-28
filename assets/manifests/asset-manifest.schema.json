@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Emberveil Asset Manifest",
+  "type": "object",
+  "required": ["generatedAt", "entries"],
+  "properties": {
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["key", "category", "sourcePath", "processedPath", "extension"],
+        "properties": {
+          "key": { "type": "string" },
+          "category": {
+            "enum": ["tileset", "background", "ui", "icon", "portrait", "audio_music", "audio_sfx", "unknown"]
+          },
+          "sourcePath": { "type": "string" },
+          "processedPath": { "type": "string" },
+          "extension": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "placeholder": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

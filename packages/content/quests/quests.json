@@ -1,0 +1,12 @@
+[
+  {"id":"q-hearth-01","title":"Ashes at the Gate","summary":"Clear ember-rats near Hearthmere's gate.","region":"Hearthmere"},
+  {"id":"q-hearth-02","title":"Lantern Oil Run","summary":"Gather marsh bulbs for the lamplighters.","region":"Bramble March"},
+  {"id":"q-hearth-03","title":"Quiet the Bell","summary":"Repair the warning bell in Graybox Commons.","region":"Graybox Commons"},
+  {"id":"q-bramble-01","title":"Thorns in the Fog","summary":"Hunt bramble stalkers in the fen.","region":"Bramble March"},
+  {"id":"q-bramble-02","title":"Hooks and Hunger","summary":"Catch ironfin eels for camp stew.","region":"Bramble March"},
+  {"id":"q-cinder-01","title":"Hollow Heat","summary":"Seal steam vents in Cinder Hollow.","region":"Cinder Hollow"},
+  {"id":"q-cinder-02","title":"The Ember Ledger","summary":"Recover the forge-keeper notes.","region":"Cinder Hollow"},
+  {"id":"q-ash-01","title":"Vault Echoes","summary":"Map crystal halls in Ashvault.","region":"Ashvault"},
+  {"id":"q-arena-01","title":"Redglass Trial","summary":"Win a match in Redglass Pit.","region":"Redglass Pit"},
+  {"id":"q-lantern-01","title":"Keys for Home","summary":"Craft starter locksets in Lantern Ward.","region":"Lantern Ward"}
+]

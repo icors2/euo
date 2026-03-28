@@ -1,0 +1,4 @@
+[
+  {"id":"npc-mira","name":"Mira Coalhand","map":"hearthmere","x":8,"y":7,"dialogue":"Welcome to Hearthmere, emberkin."},
+  {"id":"npc-ren","name":"Ren Drift","map":"hearthmere","x":10,"y":11,"dialogue":"Bramble March bites harder at dusk."}
+]
