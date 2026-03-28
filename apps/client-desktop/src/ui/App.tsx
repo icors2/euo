@@ -38,6 +38,7 @@ export function App() {
   const [pvpTarget, setPvpTarget] = useState('');
   const [showAdmin, setShowAdmin] = useState(false);
   const [adminMonsterName, setAdminMonsterName] = useState('Arena Wisp');
+  const [adminActions, setAdminActions] = useState<Array<{ at: string; admin: string; action: string }>>([]);
   const [titleArt, setTitleArt] = useState<string | null>(null);
   const gameRef = useRef<HTMLDivElement>(null);
 
@@ -79,14 +80,19 @@ export function App() {
     setHp(world.self.hp);
     setMaxHp(world.self.maxHp);
     setDead(world.self.dead);
+    setParty(partyRes.party);
   };
 
   const refreshCombat = async () => {
-    const world = await api.fetchWorldState(playerId, 'hearthmere');
+    const [world, partyRes] = await Promise.all([
+      api.fetchWorldState(playerId, 'hearthmere'),
+      api.fetchParty(playerId)
+    ]);
     setMonsters(world.monsters);
     setHp(world.self.hp);
     setMaxHp(world.self.maxHp);
     setDead(world.self.dead);
+    setParty(partyRes.party);
   };
 
   const doRegister = async () => {
@@ -176,11 +182,20 @@ export function App() {
     setStatus(`Duel winner: ${res.winner} (A:${res.rolls.attacker} B:${res.rolls.defender})`);
   };
 
+
+
+  const loadAdminActions = async () => {
+    const res = await api.fetchAdminActions(token);
+    if (!res.ok) return setStatus(res.error ?? 'Cannot load admin actions');
+    setAdminActions((res.actions ?? []).map((a) => ({ at: a.at, admin: a.admin, action: a.action })));
+  };
+
   const spawnMonsterAdmin = async () => {
     const res = await api.adminSpawnMonster(token, 'hearthmere', adminMonsterName, 9, 9);
     if (!res.ok) return setStatus(res.error ?? 'Admin spawn failed');
     setStatus(`Spawned ${res.monster.name}`);
     await refreshCombat();
+    await loadAdminActions();
   };
 
   if (stage === 'launcher') {
@@ -233,7 +248,7 @@ export function App() {
         {dialogue && <div className="panel mini"><h3>{dialogue.name}</h3>{dialogue.lines.map((l, i) => <div key={i}>{l}</div>)}{dialogue.questOfferId && <small>Quest available: {dialogue.questOfferId}</small>}</div>}
 
         {showParty && <div className="panel mini"><h3>Party</h3><div>ID: {party?.id ?? 'none'}</div><div>Leader: {party?.leaderId ?? '-'}</div><div>Members: {party?.members?.join(', ') ?? '-'}</div><input placeholder="invite characterId" value={invitee} onChange={(e) => setInvitee(e.target.value)} /><button onClick={inviteParty}>Invite</button><button onClick={leavePartyNow}>Leave Party</button><input placeholder="duel target characterId" value={pvpTarget} onChange={(e) => setPvpTarget(e.target.value)} /><button onClick={duel}>Duel in Redglass Pit</button></div>}
-        {showAdmin && <div className="panel mini"><h3>Admin Tools</h3><div>Login as <code>gamemaster/adminpass</code> to use.</div><input value={adminMonsterName} onChange={(e) => setAdminMonsterName(e.target.value)} /><button onClick={spawnMonsterAdmin}>Spawn Monster @ (9,9)</button></div>}
+        {showAdmin && <div className="panel mini"><h3>Admin Tools</h3><div>Login as <code>gamemaster/adminpass</code> to use.</div><input value={adminMonsterName} onChange={(e) => setAdminMonsterName(e.target.value)} /><button onClick={spawnMonsterAdmin}>Spawn Monster @ (9,9)</button><button onClick={loadAdminActions}>Refresh Admin Log</button>{adminActions.slice(-5).map((a, i) => <div key={i}>{a.at} {a.admin}: {a.action}</div>)}</div>}
 
         <small>{status}</small>
         <div className="chat-log">{chat.map((m, i) => <div key={i}>[{m.channel}] {m.sender}: {m.text}</div>)}</div>

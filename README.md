@@ -38,6 +38,12 @@
 - admin-only monster spawn endpoint requiring admin token
 - in-client Party panel and Admin tools panel
 
+## Phase 6 delivered
+- expanded slash command coverage (`/help /who /msg /reply /partyinvite /partyleave /roll /bind /unstuck /trade /ignore`)
+- server-side chat rate limiter (8 messages per 10s per sender)
+- admin action audit log written to `runtime-logs/admin-actions.jsonl`
+- admin log API endpoint and in-client admin log viewer
+
 ## Run
 1. `pnpm install`
 2. `pnpm asset:inventory`
@@ -55,12 +61,12 @@
 - Fight local monster spawns and gain loot
 - Die and respawn at bind point
 - Manage party membership and run optional duels
-- Admin-spawn monsters for live testing
-- Chat globally and run basic slash commands (`/help`, `/roll`)
+- Admin-spawn monsters and review admin audit logs
+- Chat globally with slash commands and rate limits
 - Trigger sanctuary and portal regions
 
 ## Next recommended files to generate
 - persistent PostgreSQL/Prisma adapters replacing in-memory stores
 - full PvP zone combat rules and arena leaderboard
-- admin audit log persistence and moderation UI
-- production hardening, tests, and installer polish
+- admin moderation actions and sanctions subsystem
+- production hardening, automated tests, and installer polish

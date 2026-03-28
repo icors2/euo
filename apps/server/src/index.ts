@@ -4,8 +4,10 @@ import { Server } from 'socket.io';
 import { z } from 'zod';
 import type { ClientToServerEvents, ServerToClientEvents, PlayerSnapshot, ChatMessage } from '@emberveil/shared';
 import { registerUser, issueToken, validateToken, listCharacters, createCharacter, tokenIsAdmin } from './auth/store';
+import { recordAdminAction, readAdminActions } from './auth/adminLog';
 import { worldState, upsertPlayer, movePlayer, removePlayer } from './world/state';
 import { handleSlashCommand } from './chat/commands';
+import { chatAllowed } from './chat/rateLimiter';
 import { canOccupy, getMapSnapshot, resolveTrigger } from './content/maps';
 import { getInventory, getEquipment, equipItem, getQuestLog, getNpcDialogue, addLootToInventory } from './game/progression';
 import { getCombatSnapshot, attackMonster, respawnAtBind, setBind, spawnMonsterAdmin } from './game/combat';
@@ -141,7 +143,15 @@ app.post('/admin/spawn-monster', async (req, reply) => {
   if (!tokenIsAdmin(parsed.data.token)) return reply.code(403).send({ ok: false, error: 'Admin only.' });
 
   const monster = spawnMonsterAdmin(parsed.data.mapId, parsed.data.name, parsed.data.x, parsed.data.y);
+  const admin = validateToken(parsed.data.token) ?? 'unknown';
+  recordAdminAction(admin, 'spawn-monster', parsed.data);
   return { ok: true, monster };
+});
+
+app.get('/admin/actions', async (req, reply) => {
+  const token = String((req.query as { token?: string }).token ?? '');
+  if (!tokenIsAdmin(token)) return reply.code(403).send({ ok: false, error: 'Admin only.' });
+  return { ok: true, actions: readAdminActions() };
 });
 app.get('/content/map/:mapId', async (req, reply) => {
   const mapId = (req.params as { mapId: string }).mapId;
@@ -216,9 +226,13 @@ io.on('connection', (socket) => {
   socket.on('chat:send', ({ token, text }) => {
     const username = validateToken(token);
     if (!username) return;
+    if (!chatAllowed(username)) {
+      socket.emit('system:error', 'Chat rate limit: max 8 messages / 10s.');
+      return;
+    }
 
     const msg: ChatMessage = text.startsWith('/')
-      ? handleSlashCommand(username, text) ?? { channel: 'system', sender: 'System', text: 'No-op command.', timestamp: Date.now() }
+      ? handleSlashCommand(username, text, { onlineNames: Object.values(worldState.players).map((p) => p.name) }) ?? { channel: 'system', sender: 'System', text: 'No-op command.', timestamp: Date.now() }
       : { channel: 'global', sender: username, text, timestamp: Date.now() };
 
     io.emit('chat:message', msg);

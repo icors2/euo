@@ -122,3 +122,9 @@ export async function adminSpawnMonster(token: string, mapId: string, name: stri
   });
   return res.json();
 }
+
+
+export async function fetchAdminActions(token: string) {
+  const res = await fetch(`${API_BASE}/admin/actions?token=${encodeURIComponent(token)}`);
+  return res.json() as Promise<{ ok: boolean; actions?: Array<{ at: string; admin: string; action: string; payload: unknown }>; error?: string }>;
+}
