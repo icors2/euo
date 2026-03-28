@@ -1,33 +1,6 @@
-import crypto from 'node:crypto';
-
-interface UserRecord {
-  username: string;
-  email: string;
-  passwordHash: string;
-  characters: string[];
-}
-
-const users = new Map<string, UserRecord>();
 const tokenToUser = new Map<string, string>();
 
-function hash(password: string): string {
-  return crypto.createHash('sha256').update(password).digest('hex');
-}
-
-export function registerUser(username: string, email: string, password: string): { ok: boolean; error?: string } {
-  if (users.has(username)) return { ok: false, error: 'Username already exists.' };
-  users.set(username, {
-    username,
-    email,
-    passwordHash: hash(password),
-    characters: ['Cinderling']
-  });
-  return { ok: true };
-}
-
-export function issueToken(username: string, password: string): string | null {
-  const user = users.get(username);
-  if (!user || user.passwordHash !== hash(password)) return null;
+export function issueToken(username: string): string {
   const token = `${username}-${crypto.randomUUID()}`;
   tokenToUser.set(token, username);
   return token;

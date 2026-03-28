@@ -32,17 +32,8 @@
 4. `pnpm --filter @emberveil/server dev`
 5. `pnpm --filter @emberveil/client-desktop dev`
 
-## Playable now
-- Register an account (or login with seeded `devhero / devpass`)
-- Create/select characters
-- Enter Hearthmere and move around in shared realtime
-- Open inventory/equipment/quest windows
-- Equip starting items and read NPC dialogue
-- Chat globally and run basic slash commands (`/help`, `/roll`)
-- Trigger sanctuary and portal regions
-
-## Next recommended files to generate (Phase 4)
-- monster spawn runtime and combat resolution loop
-- loot drops + inventory pickup flow
-- death/respawn lifecycle and bind point consumption
-- full trigger engine expansion (locked doors, traps, no-teleport)
+## MVP roadmap
+- Phase 2: map collisions, full character flow, map transitions
+- Phase 3: inventory, equipment, quests, NPC dialogs
+- Phase 4: monsters, combat, loot, trigger engine
+- Phase 5: party tools, PvP arena, admin panel, packaging polish
