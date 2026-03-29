@@ -13,7 +13,8 @@
     "asset:manifest": "tsx scripts/generate-asset-manifests.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "smoke:server": "node scripts/smoke-check.mjs"
+    "smoke:server": "node scripts/smoke-check.mjs",
+    "ci:verify": "node scripts/ci-verify.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

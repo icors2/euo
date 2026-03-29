@@ -69,6 +69,12 @@
 - admin panel diagnostics viewer
 - server smoke-check script (`pnpm smoke:server`)
 
+
+## Phase 11 delivered
+- GitHub Actions CI workflow with PostgreSQL service boot
+- automated workspace typecheck + asset manifest generation in CI
+- CI verification script to assert core runtime files and milestone markers
+
 ## Run
 1. `pnpm install`
 2. `pnpm asset:inventory`
@@ -95,4 +101,4 @@
 - migrate auth/character/inventory stores from in-memory maps into Prisma repositories
 - full PvP zone combat rules and arena leaderboard
 - refresh token rotation and device/session management UI
-- expand smoke checks into CI integration tests and packaging verification
+- add end-to-end multiplayer integration tests (server + two simulated clients)
