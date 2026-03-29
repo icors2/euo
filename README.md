@@ -19,8 +19,23 @@
 4. `pnpm --filter @emberveil/server dev`
 5. `pnpm --filter @emberveil/client-desktop dev`
 
-## MVP roadmap
-- Phase 2: map collisions, full character flow, map transitions
-- Phase 3: inventory, equipment, quests, NPC dialogs
-- Phase 4: monsters, combat, loot, trigger engine
-- Phase 5: party tools, PvP arena, admin panel, packaging polish
+## Playable now
+- Register an account (or login with seeded `devhero / devpass`)
+- Admin login available via `gamemaster / adminpass`
+- Create/select characters
+- Enter Hearthmere and move around in shared realtime
+- Open inventory/equipment/quest windows
+- Equip starting items and read NPC dialogue
+- Fight local monster spawns and gain loot
+- Die and respawn at bind point
+- Manage party membership and run optional duels
+- Admin-spawn monsters, moderate users, and review admin audit logs
+- Chat globally with slash commands and rate limits
+- Logout to revoke session token
+- Trigger sanctuary and portal regions
+
+## Next recommended files to generate
+- migrate auth/character/inventory stores from in-memory maps into Prisma repositories
+- full PvP zone combat rules and arena leaderboard
+- refresh token rotation and device/session management UI
+- add end-to-end multiplayer integration tests (server + two simulated clients)
